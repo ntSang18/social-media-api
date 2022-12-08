@@ -27,7 +27,7 @@ app.use("/api", require("./routes/authRouter"));
 // app.use("/api", require("./routes/userRouter"));
 // app.use("/api", require("./routes/postRouter"));
 app.use("/api", require("./routes/commentRouter"));
-// app.use("/api", require("./routes/notifyRouter"));
+app.use("/api", require("./routes/notifyRouter"));
 app.use("/api", require("./routes/messageRouter"));
 
 if (process.env.NODE_ENV === "production") {
