@@ -42,31 +42,41 @@ const postCtrl = {
         }
     },
     getPosts: async (req, res) => {
-        try {
-            const features =  new APIfeatures(Posts.find({
-                user: [...req.user.following, req.user._id]
-            }), req.query).paginating()
+		try {
+			const features = new APIfeatures(
+				Posts.find({
+					user: [...req.user.following, req.user._id],
+				}),
+				req.query
+			).paginating();
 
-            const posts = await features.query.sort('-createdAt')
-            .populate("user likes", "avatar username fullname followers")
-            .populate({
-                path: "comments",
-                populate: {
-                    path: "user likes",
-                    select: "-password"
-                }
-            })
+			const field = req.query.field ? req.query.field : "-createdAt";
+			const option = req.query.option ? req.query.option : "asc";
 
-            res.json({
-                msg: 'Success!',
-                result: posts.length,
-                posts
-            })
+			let orderBy = {};
+			orderBy =
+				field === "likes" ? { likes: option } : { createdAt: option };
 
-        } catch (err) {
-            return res.status(500).json({msg: err.message})
-        }
-    },
+			const posts = await features.query
+				.sort(orderBy)
+				.populate("user likes", "avatar username fullname followers")
+				.populate({
+					path: "comments",
+					populate: {
+						path: "user likes",
+						select: "-password",
+					},
+				});
+
+			res.json({
+				msg: "Success!",
+				result: posts.length,
+				posts,
+			});
+		} catch (err) {
+			return res.status(500).json({ msg: err.message });
+		}
+	},
     updatePost: async (req, res) => {
         try {
             const { content, images } = req.body
